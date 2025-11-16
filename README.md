@@ -40,18 +40,6 @@ Install dependencies via pip:
 pip install tensorflow numpy matplotlib pillow
 ```
 
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/flower-classification-resnet50.git
-   cd flower-classification-resnet50
-   ```
-
-2. Download and extract the dataset into a `data/` folder (or update paths in the script).
-
-3. Install required packages (see above).
-
 ## Usage
 
 1. **Run the Script**:
