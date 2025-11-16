@@ -1,102 +1,119 @@
-# Flower Classification with ResNet50
+# Flower Classification Model using ResNet50
 
-This project classifies images of flowers into 17 categories using a deep learning model based on **ResNet50**. The model leverages transfer learning, first training on features extracted using a pre-trained ResNet50 model and then fine-tuning for the specific task of flower classification.
+This repository contains a Python script for training and fine-tuning a deep learning model to classify 17 different flower species using transfer learning with ResNet50. The model is built with TensorFlow and Keras, incorporating data augmentation, training on a dataset, fine-tuning, and inference on sample images.
 
-## Table of Contents
-- [Overview](#overview)
-- [Requirements](#requirements)
-- [Dataset](#dataset)
-- [Model Architecture](#model-architecture)
-- [Training](#training)
-- [Usage](#usage)
-- [License](#license)
+## Project Overview
 
-## Overview
-This project uses the **17 Flowers** dataset to classify flower images into 17 distinct categories. The model starts by using a pre-trained **ResNet50** model, which helps the model to learn complex image features more quickly. We then fine-tune the model to improve performance on the specific flower classification task. The entire process is done in a few stages: data preprocessing, model training, and prediction.
+- **Task**: Multi-class image classification for 17 flower categories.
+- **Model Architecture**: Pre-trained ResNet50 (from ImageNet) as the base, with additional layers for classification.
+- **Dataset**: The [17 Category Flower Dataset](https://www.kaggle.com/datasets/rajatkumar30/flower-recognition) from Kaggle, consisting of training and test images.
+- **Key Features**:
+  - Data augmentation for improved generalization.
+  - Initial training with frozen base layers.
+  - Fine-tuning of the last 10 layers for better performance.
+  - Visualization of training and validation accuracy.
+  - Sample prediction on a new image.
+
+This code was originally developed in a Kaggle notebook environment but can be adapted for local runs with minor modifications (e.g., dataset paths).
+
+## Dataset
+
+The dataset includes:
+- **Training Set**: Images in `/train` directory, organized by class folders.
+- **Test Set**: Images in `/test` directory.
+- **Classes**: 17 flower types (e.g., Bluebell, Buttercup, etc.). The exact class names are derived from the directory structure.
+
+Download the dataset from [Kaggle](https://www.kaggle.com/datasets/rajatkumar30/flower-recognition) and place it in a local directory (e.g., `./data/train` and `./data/test`). Update the `train_path` and `test_path` variables in the script accordingly.
 
 ## Requirements
-Make sure to install the following dependencies to run the project:
+
+- Python 3.8+
+- TensorFlow 2.x
+- Keras
+- NumPy
+- Matplotlib
+- Pillow (for image loading)
+
+Install dependencies via pip:
 
 ```bash
-pip install tensorflow numpy matplotlib
-Additionally, you need to have access to the 17 Flowers Dataset. You can download it from Kaggle.
+pip install tensorflow numpy matplotlib pillow
+```
 
-Dataset
-The 17 Flowers Dataset consists of images representing 17 different species of flowers. The dataset is divided into training and test sets. The training set is used to train the model, while the test set is used to evaluate its performance.
+## Installation
 
-Dataset Link: 17 Flowers Dataset on Kaggle
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/flower-classification-resnet50.git
+   cd flower-classification-resnet50
+   ```
 
-The images are stored in the following directory structure:
+2. Download and extract the dataset into a `data/` folder (or update paths in the script).
 
-train/: Contains the images for training the model.
+3. Install required packages (see above).
 
-test/: Contains the images for testing the model.
+## Usage
 
-Model Architecture
-The model is built on top of ResNet50, a deep convolutional neural network pre-trained on ImageNet, which is used as a feature extractor. The custom layers added on top of the ResNet50 base model help fine-tune the model for the specific task of flower classification.
+1. **Run the Script**:
+   - Execute the Python file:
+     ```bash
+     python flower_classification.py
+     ```
+   - The script will:
+     - Load and preprocess data.
+     - Build and train the model for 20 epochs.
+     - Plot initial training accuracy.
+     - Fine-tune the model for 5 more epochs.
+     - Plot fine-tuning accuracy.
+     - Predict the label for a sample image (update `img_path` as needed).
 
-Base Model: ResNet50 (pre-trained on ImageNet).
+2. **Customization**:
+   - Adjust hyperparameters like `batch_size`, `epochs`, or learning rate.
+   - For local runs, replace Kaggle paths (e.g., `/kaggle/input/...`) with local paths.
+   - To predict on a new image, call `predict_label(model, your_image_path)`.
 
-Added Layers:
+3. **Output**:
+   - Training history plots will be displayed (accuracy vs. epochs).
+   - Sample prediction: Prints the predicted flower class for the given image.
 
-Global Average Pooling: This reduces the spatial dimensions of the feature maps.
+## Model Architecture
 
-Dense Layer (256 units) with ReLU activation: Adds a fully connected layer for classification.
+- Base: ResNet50 (pre-trained on ImageNet, frozen initially).
+- Top Layers:
+  - Global Average Pooling.
+  - Dense (256 units, ReLU).
+  - Dropout (0.5).
+  - Dense (17 units, Softmax).
+- Optimizer: Adam.
+- Loss: Categorical Crossentropy.
+- Metrics: Accuracy.
 
-Dropout (0.5): Reduces overfitting during training.
+During fine-tuning, the last 10 layers of ResNet50 are unfrozen, and the learning rate is reduced to 1e-5.
 
-Output Layer (17 units) with Softmax activation: Outputs the probability of each class (flower type).
+## Results
 
-The model is trained in two phases:
+- **Initial Training**: Expect training accuracy to improve over 20 epochs, with validation accuracy monitoring for overfitting.
+- **Fine-Tuning**: Further improvement in accuracy after unfreezing layers.
+- **Sample Prediction**: For the provided image (`6028_SpanishBluebells_CGC8649sq-scaled.jpg`), the model outputs the predicted class (e.g., "Spanish Bluebells").
 
-Initial Training: We freeze the layers of the ResNet50 model and train the custom layers.
+Example plots (generated during runtime):
+- Training vs. Validation Accuracy (initial and fine-tuned).
 
-Fine-Tuning: After the initial training, we unfreeze the last few layers of ResNet50 and continue training the entire model to improve performance.
+## Limitations
 
-Training
-The model is trained using the 17 Flowers Dataset with data augmentation techniques such as rotation, shifting, zooming, and flipping. These techniques help to improve the model’s ability to generalize to new, unseen images.
+- This script assumes a GPU-enabled environment (like Kaggle) for faster training. On CPU, reduce `batch_size` or epochs.
+- Dataset paths are Kaggle-specific; adapt for local use.
+- No model saving/exporting in the script—add `model.save('flower_model.h5')` if needed.
 
-Data Augmentation: The ImageDataGenerator is used to apply random transformations to the images to make the model more robust.
+## Contributing
 
-Batch Training: The model is trained in batches of 32 images, and the training lasts for 20 epochs with a validation split of 20%.
+Feel free to fork the repository and submit pull requests for improvements, such as adding model evaluation on the test set or hyperparameter tuning.
 
-Fine-Tuning: After the initial training phase, we unfreeze the last few layers of the ResNet50 model to allow for fine-tuning and more accurate learning.
+## License
 
-Here is how the accuracy improves during training:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-python
-Copy code
-plt.plot(history.history['accuracy'], label='Train Accuracy')
-plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.legend()
-plt.show()
-Usage
-To use the trained model for predicting the class of a new flower image, follow the steps below:
+## Acknowledgments
 
-1. Load and Preprocess the Image:
-Use the load_img and img_to_array functions from Keras to load and preprocess the image.
-
-2. Predict the Label:
-Use the model’s predict function to get the predicted class for the image.
-
-Example Code:
-python
-Copy code
-def predict_label(model, img_path):
-    img = load_img(img_path, target_size=(224, 224))  # Load image
-    img_array = img_to_array(img)  # Convert image to array
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-    img_array = preprocess_input(img_array)  # Preprocess image for ResNet50
-    
-    pred = model.predict(img_array)  # Predict class probabilities
-    class_index = np.argmax(pred)  # Get the index of the highest probability
-    
-    return labels[class_index]  # Return the corresponding flower class
-
-# Example Usage:
-img_path = "path_to_flower_image.jpg"
-result = predict_label(model, img_path)
-print("Predicted label:", result)
-This function will output the predicted flower class for the input image
+- Dataset: Provided by [rajatkumar30 on Kaggle](https://www.kaggle.com/datasets/rajatkumar30/flower-recognition).
+- Inspired by standard transfer learning practices for image classification.
